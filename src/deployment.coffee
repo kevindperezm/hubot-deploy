@@ -6,8 +6,10 @@ Version = require(Path.join(__dirname, "version")).Version
 api = require("octonode").client(process.env.HUBOT_GITHUB_TOKEN or 'unknown')
 api.requestDefaults.headers['Accept'] = 'application/vnd.github.cannonball-preview+json'
 ###########################################################################
+AppsCache = require './apps_cache'
 
 class Deployment
+  @USE_WEB_ENDPOINT = process.env['HUBOT_DEPLOY_WEB_ENDPOINT']
   @APPS_FILE = process.env['HUBOT_DEPLOY_APPS_JSON'] or "apps.json"
 
   constructor: (@name, @ref, @task, @env, @force, @hosts) ->
@@ -19,7 +21,10 @@ class Deployment
     @requiredContexts = null
 
     try
-      applications = JSON.parse(Fs.readFileSync(@constructor.APPS_FILE).toString())
+      applications = if @constructor.USE_WEB_ENDPOINT
+        AppsCache.instance().apps
+      else
+        JSON.parse(Fs.readFileSync(@constructor.APPS_FILE).toString())
     catch
       throw new Error("Unable to parse your apps.json file in hubot-deploy")
 

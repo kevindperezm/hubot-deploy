@@ -3,16 +3,7 @@ class AppsCache
 
   class Cache
     constructor: ->
-      @apps = {
-        hellocato: {
-          provider: "heroku",
-          auto_merge: false,
-          repository: "kevindperezm/hellocat",
-          environments: ["production"],
-
-          heroku_production_name: "hellocat"
-        }
-      }
+      console.log "Creada instancia de cache"
 
   @instance: ->
     _instance ?= new Cache
