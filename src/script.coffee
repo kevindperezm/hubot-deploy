@@ -32,9 +32,9 @@ module.exports = (robot) ->
 
     try
       deployment = new Deployment(name)
-      formatter  = new Formatters.WhereFormatter(deployment)
-
-      msg.send formatter.message()
+      deployment.loadApp (deployment) ->
+        formatter  = new Formatters.WhereFormatter(deployment)
+        msg.send formatter.message()
     catch err
       console.log err
 
@@ -48,10 +48,10 @@ module.exports = (robot) ->
 
     try
       deployment = new Deployment(name, null, null, environment)
-      deployment.latest (deployments) ->
-        formatter = new Formatters.LatestFormatter(deployment, deployments)
-        msg.send formatter.message()
-
+      deployment.loadApp (deployment) ->
+        deployment.latest (deployments) ->
+          formatter = new Formatters.LatestFormatter(deployment, deployments)
+          msg.send formatter.message()
     catch err
       console.log err
 
@@ -68,23 +68,23 @@ module.exports = (robot) ->
     hosts = (msg.match[6]||'')
 
     deployment = new Deployment(name, ref, task, env, force, hosts)
+    deployment.loadApp (deployment) ->
+      unless deployment.isValidApp()
+        msg.reply "#{name}? Never heard of it."
+        return
+      unless deployment.isValidEnv()
+        msg.reply "#{name} doesn't seem to have an #{env} environment."
+        return
 
-    unless deployment.isValidApp()
-      msg.reply "#{name}? Never heard of it."
-      return
-    unless deployment.isValidEnv()
-      msg.reply "#{name} doesn't seem to have an #{env} environment."
-      return
+      deployment.room = msg.message.user.room
+      deployment.user = msg.envelope.user.name
 
-    deployment.room = msg.message.user.room
-    deployment.user = msg.envelope.user.name
+      deployment.adapter = robot.adapterName
 
-    deployment.adapter = robot.adapterName
+      console.log JSON.stringify(deployment.requestBody())
 
-    console.log JSON.stringify(deployment.requestBody())
-
-    deployment.post (responseMessage) ->
-      msg.reply responseMessage if responseMessage?
+      deployment.post (responseMessage) ->
+        msg.reply responseMessage if responseMessage?
 
   ###########################################################################
   # deploy:version
