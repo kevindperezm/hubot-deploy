@@ -15,7 +15,7 @@ class AppsCache
     loadApps: (cb, that) ->
       return cb(@apps, that) if @apps && cb
 
-      @db.get 'apps', (err, data) =>
+      @db.get 'hubot-deploy-apps', (err, data) =>
         @apps = if data && !err then JSON.parse(data) else {}
         cb(@apps, that) if cb
 
