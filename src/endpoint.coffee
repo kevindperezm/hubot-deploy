@@ -1,4 +1,7 @@
+AppsCache = require './apps_cache'
+
 module.exports = (robot) ->
   robot.router.post '/deploy/apps', (req, res) ->
-    console.log 'Incoming request in /deploy/apps endpoint'
+    apps = JSON.stringify req.body.apps
+    AppsCache.instance().saveApps(apps)
     res.end()
