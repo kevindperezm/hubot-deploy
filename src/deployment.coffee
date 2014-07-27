@@ -37,7 +37,7 @@ class Deployment
       that.configureAutoMerge()
       that.configureRequiredContexts()
       that.configureEnvironments()
-    cb(that)
+    cb(that) if cb
 
   isValidApp: ->
     @application?
