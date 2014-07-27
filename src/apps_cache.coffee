@@ -1,6 +1,8 @@
 redis = require 'redis'
 EventEmitter = require 'events'
 
+APPS = 'hubot-deploy-apps'
+
 class AppsCache
   _instance = null
 
@@ -15,9 +17,13 @@ class AppsCache
     loadApps: (cb, that) ->
       return cb(@apps, that) if @apps && cb
 
-      @db.get 'hubot-deploy-apps', (err, data) =>
-        @apps = if data && !err then JSON.parse(data) else {}
+      @db.get APPS, (err, data) =>
+        @apps = if data && !err then JSON.parse(data)
         cb(@apps, that) if cb
+
+    saveApps: (apps) ->
+      @db.set APPS, apps
+      @emit 'expire'
 
   @instance: ->
     _instance ?= new Cache
