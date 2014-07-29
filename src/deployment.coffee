@@ -22,22 +22,23 @@ class Deployment
 
   loadApp: (cb) ->
     if @constructor.USE_WEB_ENDPOINT
-      AppsCache.instance().loadApps(@configureApp, @, cb)
+      AppsCache.instance().loadApps (apps) =>
+        @configureApp(apps, cb)
     else
       Fs.readFile @constructor.APPS_FILE, (err, data) =>
         if err
           throw new Error "Unable to parse your apps.json file in hubot-deploy"
         applications = JSON.parse(data.toString())
-        @configureApp(applications, @, cb)
+        @configureApp(applications, cb)
 
-  configureApp: (applications, that = @, cb) ->
-    that.application = applications[that.name]
-    if that.application?
-      that.repository = that.application['repository']
-      that.configureAutoMerge()
-      that.configureRequiredContexts()
-      that.configureEnvironments()
-    cb(that) if cb
+  configureApp: (applications, cb = null) ->
+    @application = applications[@name]
+    if @application?
+      @repository = @application['repository']
+      @configureAutoMerge()
+      @configureRequiredContexts()
+      @configureEnvironments()
+    cb(@) if cb
 
   isValidApp: ->
     @application?
