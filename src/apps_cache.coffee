@@ -22,12 +22,14 @@ class AppsCache
           @apps = {}
           for str in data
             app = JSON.parse(str)
+            app.id = data.indexOf(str)
             @apps[app.name] = app
         cb(@apps) if cb
 
     saveApp: (app) ->
       @db.rpush APPS, app
       @emit 'expire'
+
 
   @instance: ->
     _instance ?= new Cache
