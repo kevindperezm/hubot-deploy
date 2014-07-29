@@ -1,33 +1,42 @@
-# hubot-deploy [![Build Status](https://travis-ci.org/atmos/hubot-deploy.png?branch=master)](https://travis-ci.org/atmos/hubot-deploy)
+## Introduction
 
-[GitHub Flow][1] via [hubot][3]. Chatting with hubot creates [deployments][2] on GitHub and dispatches [Deployment Events][4].
+This is a custom version of the [hubot-deploy](https://github.com/atmos/hubot-deploy) [Hubot](https://hubot.github.com) script. It retains all the functionality of the original version, but includes some new features that one of my projects required at a time. Feel free to use it too, if you also need this specific features. Else, visit the original script page.
 
-![](https://f.cloud.github.com/assets/38/2331137/77036ef8-a444-11e3-97f6-68dab6975eeb.jpg)
+## New features
 
-There's a bunch of [ChatOps](https://github.com/atmos/hubot-deploy/blob/master/docs/chatops.md) commands.
+* [Optional] Persist its deployable apps data in a Redis instance.
+* [Optional] Expose a REST-like API for apps data.
 
-## Installation
+## How to enable optional features
 
-* Add hubot-deploy to your `package.json` file.
-* Add hubot-deploy to your `external-scripts.json` file.
-* [Configure](https://github.com/atmos/hubot-deploy/blob/master/docs/configuration.md) your repos and providers for easy aliasing and custom options.
+In order for optional features to work, you must set some environment variables with useful information that these features need.
 
-## Runtime Environment
+If you want to activate the deployable apps data persistance, you need to set the environment variable `REDISTOGO_URL` with the location of the Redis instance to persist in. That URL has to be like this:
 
-You need to set the following environmental variables.
+`redis://redistogo:bf97fg52408700451ff120124b4861ec@hoki.redistogo.com:9241/`.
 
-| Environmental Variables |                                                 |
-|-------------------------|-------------------------------------------------|
-| HUBOT_GITHUB_TOKEN            |A [GitHub token](https://github.com/settings/applications#personal-access-tokens) with [repo:deployment](https://developer.github.com/v3/oauth/#scopes). The owner of this token creates [Deployments][5].
+If you deploy your Hubot project to Heroku and add the Redis To Go addon, then you have this variable already set. Also, you'll have to set `HUBOT_DEPLOY_REST_APPS` to `true`.
 
-## See Also
+If you set `HUBOT_DEPLOY_REST_APPS` to `true`, then the REST API for deployable apps data is, by default, activated. This will provide your bot with web endpoints that other apps/services can use to retrieve data about what can your bot deploy and to teach your bot how to deploy new apps.
 
-* [hubot](https://github.com/github/hubot) - A chat robot with support for a lot of networks.
-* [heaven](https://github.com/atmos/heaven) - Listens for Deployment events from GitHub and executes the deployment for you.
-* [hubot-auto-deploy](https://github.com/atmos/hubot-auto-deploy) - Manage automated deployments on GitHub from chat.
+Routes are like these:
 
-[1]: https://guides.github.com/overviews/flow/
-[2]: https://developer.github.com/v3/repos/deployments/
-[3]: https://hubot.github.com
-[4]: https://developer.github.com/v3/activity/events/types/#deploymentevent
-[5]: https://developer.github.com/v3/repos/deployments/
+    |-------------------------|-------------------------------------|----------------------------------------|
+    | Route                   | Action                              | Response                               |
+    |-------------------------|-------------------------------------|----------------------------------------|
+    | GET /deploy/apps        | List all apps your bot knows how to | A JSON response with an `apps` object  |
+    |                         | deploy.                             | that has the same format than the      |
+    |                         |                                     | original apps.json.                    | 
+    |-------------------------|-------------------------------------|----------------------------------------|
+    | POST /deploy/apps       | Add a new app to your bot's         | 201 Created.                           | 
+    |                         | deployable apps. You must send an   |                                        |
+    |                         | `app` JSON object, with the same    |                                        |
+    |                         | format as apps in the original      |                                        |
+    |                         |  apps.json and a `name` atribute.   |                                        |
+    |-------------------------|-------------------------------------|----------------------------------------|
+    | DELETE /deploy/apps/:id | Delete an app given its id.         | 204 No Content                         |
+    | ------------------------|-------------------------------------|----------------------------------------|
+
+## Notices
+
+This is part of my internship project at [Crowd Interactive](http://crowdint.com).
