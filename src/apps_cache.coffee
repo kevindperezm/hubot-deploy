@@ -21,8 +21,8 @@ class AppsCache
         @apps = @buildApps(data) unless err
         cb(@apps) if cb
 
-    saveApp: (app) ->
-      @db.rpush APPS, app
+    saveApp: (newApp) ->
+      @db.rpush APPS, newApp
       @emit 'expire'
 
     deleteApp: (index, cb) ->
