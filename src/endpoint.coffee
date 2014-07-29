@@ -1,7 +1,7 @@
 AppsCache = require './apps_cache'
 
 module.exports = (robot) ->
-  return unless process.env['HUBOT_DEPLOY_WEB_ENDPOINT']
+  return unless process.env['HUBOT_DEPLOY_REST_APPS']
 
   robot.router.get '/deploy/apps', (req, res) ->
     # Lists deployable apps

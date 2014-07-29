@@ -9,7 +9,7 @@ api.requestDefaults.headers['Accept'] = 'application/vnd.github.cannonball-previ
 AppsCache = require './apps_cache'
 
 class Deployment
-  @USE_WEB_ENDPOINT = process.env['HUBOT_DEPLOY_WEB_ENDPOINT']
+  @USE_WEB_ENDPOINT = process.env['HUBOT_DEPLOY_REST_APPS']
   @APPS_FILE = process.env['HUBOT_DEPLOY_APPS_JSON'] or "apps.json"
 
   constructor: (@name, @ref, @task, @env, @force, @hosts) ->
