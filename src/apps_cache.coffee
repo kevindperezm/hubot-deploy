@@ -14,15 +14,19 @@ class AppsCache
         console.log "Reloading cache"
         @loadApps()
 
-    loadApps: (cb, that) ->
-      return cb(@apps, that) if @apps && cb
+    loadApps: (cb) ->
+      return cb(@apps) if @apps && cb
 
-      @db.get APPS, (err, data) =>
-        @apps = if data && !err then JSON.parse(data)
-        cb(@apps, that) if cb
+      @db.lrange APPS, 0, -1, (err, data) =>
+        if data && !err
+          @apps = {}
+          for str in data
+            app = JSON.parse(str)
+            @apps[app.name] = app
+        cb(@apps) if cb
 
-    saveApps: (apps) ->
-      @db.set APPS, apps
+    saveApp: (app) ->
+      @db.rpush APPS, app
       @emit 'expire'
 
   @instance: ->
