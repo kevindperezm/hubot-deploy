@@ -8,7 +8,7 @@ class AppsCache
 
   class Cache extends EventEmitter
     constructor: ->
-      @db = redis.createClient()
+      @db = @connectToServer()
       @on 'expire', =>
         console.log "Expiring cache of apps"
         console.log "Reloading cache"
@@ -32,6 +32,17 @@ class AppsCache
         cb(deletedItems > 0)
 
     # private
+
+    connectToServer: ->
+      client = null
+      if process.env['REDISTOGO_URL']
+        rtg = require('url').parse process.env.REDISTOGO_URL
+        client = redis.createClient(rtg.port, rtg.hostname);
+        client.auth rtg.auth.split(':')[1]
+      else
+        client = redis.createClient()
+      console.log 'AppsCache connected to server'
+      client
 
     buildApps: (data) ->
       apps = {}
