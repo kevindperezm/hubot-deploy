@@ -13,5 +13,5 @@ module.exports = (robot) ->
     # Creates new deployable app.
     app = JSON.stringify req.body.app
     AppsCache.instance().saveApp(app)
-    res.end()
+    res.status(201).end()
 
