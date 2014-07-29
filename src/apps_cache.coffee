@@ -25,6 +25,12 @@ class AppsCache
       @db.rpush APPS, app
       @emit 'expire'
 
+    deleteApp: (index, cb) ->
+      @db.lrange APPS, 0, -1, (err, data) =>
+        appToDelete = data[index]
+        deletedItems = if appToDelete then @db.lrem(APPS, 1, appToDelete) else 0
+        cb(deletedItems > 0)
+
     # private
 
     buildApps: (data) ->
