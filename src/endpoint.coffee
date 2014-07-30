@@ -6,7 +6,7 @@ module.exports = (robot) ->
   robot.router.get '/deploy/apps', (req, res) ->
     # Lists deployable apps
     AppsCache.instance().loadApps (apps) ->
-      apps = [apps] unless typeof apps == Array
+      apps = formatIntoArray(apps)
       res.set 'Content-Type', 'application/json'
       res.status(200).send JSON.stringify(apps)
       res.end()
@@ -39,4 +39,10 @@ module.exports = (robot) ->
     AppsCache.instance().deleteApp parseInt(req.params.id), (success) ->
       if success then res.status(204) else res.status(404)
       res.end()
+
+  formatIntoArray = (sourceApps) ->
+    apps = []
+    for appName, appData of sourceApps
+      apps.push appData
+    apps
 
