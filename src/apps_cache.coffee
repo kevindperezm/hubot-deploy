@@ -1,6 +1,7 @@
 redis = require 'redis'
 EventEmitter = require 'events'
 
+ID_VALUE = 'hubot-deploy-apps-id'
 APPS = 'hubot-deploy-apps'
 
 class AppsCache
@@ -21,20 +22,34 @@ class AppsCache
         @apps = @buildApps(data) unless err
         cb(@apps) if cb
 
-    saveApp: (newApp) ->
-      @db.rpush APPS, newApp
-      @emit 'expire'
-
-    editApp: (index, appData) ->
-      res = @db.lset APPS, index, appData
-      @emit 'expire'
-      res
-
-    deleteApp: (index, cb) ->
-      @db.lindex APPS, index, (err, appToDelete) =>
-        deletedItems = if appToDelete then @db.lrem(APPS, 1, appToDelete) else 0
+    saveApp: (newApp, cb) ->
+      @db.incr ID_VALUE, (err, id) =>
+        newApp.id = id
+        saved = @db.rpush APPS, @stringify(newApp)
         @emit 'expire'
-        cb(deletedItems > 0)
+        cb(saved)
+
+    editApp: (id, appData, cb) ->
+      appData.id = id
+      @indexForId appData.id, (index) =>
+        res = @db.lset APPS, index, @stringify(appData)
+        @emit 'expire'
+        cb(res)
+
+    deleteApp: (id, cb) ->
+      @indexForId id, (index) =>
+        @db.lindex APPS, index, (err, appToDel) =>
+          deletedItems = if appToDel then @db.lrem(APPS, 1, appToDel) else 0
+          @emit 'expire'
+          cb(deletedItems > 0)
+
+    findAppById: (id, cb) ->
+      @indexForId id, (index) =>
+        if index
+          @db.lindex APPS, index, (err, app) =>
+            cb JSON.parse(app)
+        else
+          cb(null)
 
     # private
 
@@ -53,9 +68,18 @@ class AppsCache
       apps = {}
       if data then for str in data
         app = JSON.parse(str)
-        app.id = data.indexOf(str)
         apps[app.name] = app
       apps
+
+    indexForId: (id, cb) ->
+      @db.lrange APPS, 0, -1, (err, apps) ->
+        for app in apps
+          app = JSON.parse app
+          return cb apps.indexOf(app) if app.id == id
+        cb(null)
+
+    stringify: (obj) ->
+      JSON.stringify(obj)
 
   @instance: ->
     _instance ?= new Cache
