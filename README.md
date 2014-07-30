@@ -28,11 +28,16 @@ Routes are like these:
     |                         | deploy.                             | that has the same format than the      |
     |                         |                                     | original apps.json.                    | 
     |-------------------------|-------------------------------------|----------------------------------------|
+    | GET /deploy/apps/:id    | Get a single app's data.            | A JSON response with the app's data.   |
+    |-------------------------|-------------------------------------|----------------------------------------|
     | POST /deploy/apps       | Add a new app to your bot's         | 201 Created.                           | 
     |                         | deployable apps. You must send an   |                                        |
     |                         | `app` JSON object, with the same    |                                        |
     |                         | format as apps in the original      |                                        |
-    |                         |  apps.json and a `name` atribute.   |                                        |
+    |                         | apps.json and a `name` atribute.    |                                        |
+    |-------------------------|-------------------------------------|----------------------------------------|
+    | PATCH /deploy/apps/:id  | Replaces app's data with given data.| 204 No Content                         |
+    |                         | New data is given as JSON object.   |                                        |
     |-------------------------|-------------------------------------|----------------------------------------|
     | DELETE /deploy/apps/:id | Delete an app given its id.         | 204 No Content                         |
     | ------------------------|-------------------------------------|----------------------------------------|
