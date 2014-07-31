@@ -23,7 +23,8 @@ module.exports = (robot) ->
 
   robot.router.post '/deploy/apps', (req, res) ->
     # Creates new deployable app.
-    AppsCache.instance().saveApp req.body, (saved) ->
+    AppsCache.instance().saveApp req.body, (saved, id) ->
+      res.set 'Location', "#{req.headers['Host']}/#{id}"
       if saved then res.status(201) else res.status(422)
       res.end()
 

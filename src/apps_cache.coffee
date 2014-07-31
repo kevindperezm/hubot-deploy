@@ -27,7 +27,7 @@ class AppsCache
         newApp.id = id
         saved = @db.rpush APPS, @stringify(newApp)
         @emit 'expire'
-        cb(saved)
+        cb(saved, newApp.id)
 
     editApp: (id, appData, cb) ->
       appData.id = id
