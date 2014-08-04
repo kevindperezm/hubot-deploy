@@ -1,12 +1,15 @@
 AppsCache = require './apps_cache'
 
+PAGE_SIZE = 15
+
 module.exports = (robot) ->
   return unless process.env['HUBOT_DEPLOY_REST_APPS']
 
   robot.router.get '/deploy/apps', (req, res) ->
     # Lists deployable apps
     AppsCache.instance().loadApps (apps) ->
-      apps = formatIntoArray(apps)
+      startFrom = req.param('page') || 0
+      apps = formatIntoArray(apps, startFrom, PAGE_SIZE)
       res.set 'Content-Type', 'application/json'
       res.status(200).send JSON.stringify(apps)
       res.end()
@@ -41,9 +44,10 @@ module.exports = (robot) ->
       if success then res.status(204) else res.status(404)
       res.end()
 
-  formatIntoArray = (sourceApps) ->
+  formatIntoArray = (sourceApps, startFrom, pageSize) ->
     apps = []
     for appName, appData of sourceApps
-      apps.push appData
+      apps.push(appData) if appData.id >= startFrom
+      break if apps.length >= pageSize
     apps
 
