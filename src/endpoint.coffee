@@ -16,7 +16,6 @@ module.exports = (robot) ->
 
   robot.router.get '/deploy/apps/:id', (req, res) ->
     AppsCache.instance().findAppById parseInt(req.params.id), (app) ->
-      console.log "Callback called!"
       if app
         res.set 'Content-Type', 'application/json'
         res.status(200).send JSON.stringify(app)
