@@ -13,6 +13,14 @@ class Config
     _instance ?= new ConfigInstance
     _instance.save(config)
 
+  @validate = (config) ->
+    config.bot_name? &&
+    config.slack_team? &&
+    config.slack_token? &&
+    config.github_token? &&
+    config.deploy_timeout? &&
+    typeof config.deploy_timeout == 'number'
+
   class ConfigInstance
     constructor: ->
       @db = @connectDB()
