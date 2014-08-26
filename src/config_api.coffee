@@ -16,6 +16,7 @@ module.exports = (robot) ->
     # Saves bot config
     config = req.body
     if Config.validate(config)
+      Config.save(config)
       res.status(204).end()
     else
       errors = JSON.stringify Config.validation_errors()
