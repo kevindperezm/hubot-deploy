@@ -12,6 +12,7 @@ class Config
   @save = (config) ->
     _instance ?= new ConfigInstance
     _instance.save(config)
+    @loadIntoEnvironment()
 
   @validate = (config) ->
     config.bot_name? &&
@@ -20,6 +21,14 @@ class Config
     config.github_token? &&
     config.deploy_timeout? &&
     typeof config.deploy_timeout == 'number'
+
+  @loadIntoEnvironment = ->
+    config = @get()
+    process.env['HUBOT_SLACK_BOTNAME'] = config.bot_name
+    process.env['HUBOT_SLACK_TEAM'] = config.slack_team
+    process.env['HUBOT_SLACK_TOKEN'] = config.slack_token
+    process.env['HUBOT_GITHUB_TOKEN'] = config.github_token
+    process.env['HUBOT_DEPLOY_TIMEOUT'] = config.deploy_timeout
 
   class ConfigInstance
     constructor: ->
