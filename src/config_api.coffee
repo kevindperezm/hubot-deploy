@@ -5,11 +5,12 @@ module.exports = (robot) ->
 
   robot.router.get '/deploy/config', (req, res) ->
     # Get bot config
-    config = JSON.stringify(Config.get())
-    res.set 'Content-Type', 'application/json'
-    res.set 'Content-Length', config.length
-    res.status(200).send config
-    res.end()
+    Config.get (config) ->
+      config = JSON.stringify(config)
+      res.set 'Content-Type', 'application/json'
+      res.set 'Content-Length', config.length
+      res.status(200).send config
+      res.end()
 
   robot.router.post '/deploy/config', (req, res) ->
     # Saves bot config
