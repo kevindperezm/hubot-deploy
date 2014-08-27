@@ -1,34 +1,54 @@
 redis = require 'redis'
+validator = require './config_validator'
 
 CONFIG_KEY = "hubot-deploy-config"
 
 # Singleton class for Config values
 class Config
-  _instance = null
-  @get = (cb) ->
-    _instance ?= new ConfigInstance
-    _instance.get(cb)
+  _config = null
+  _default_config = {
+    bot_name: 'hubot',
+    slack_team: '',
+    slack_token: '',
+    github_token: '',
+    deploy_timeout: 15
+  }
 
-  @save = (config) ->
-    _instance ?= new ConfigInstance
-    _instance.save(config)
+  @get = (cb) ->
+    if _config
+      cb(_config)
+    else
+      @load (config) ->
+        _config = config
+        cb(_config)
+
+  @load = (cb) ->
+    instance = new ConfigInstance
+    instance.get (config) ->
+      _config = config || _default_config
+      cb(_config)
+
+  @set = (config) ->
+    _config = config
+
+  @save = ->
+    instance = new ConfigInstance
+    instance.save(_config)
     @loadIntoEnvironment()
 
-  @validate = (config) ->
-    config.bot_name? &&
-    config.slack_team? &&
-    config.slack_token? &&
-    config.github_token? &&
-    config.deploy_timeout? &&
-    typeof config.deploy_timeout == 'number'
+  @isValid = ->
+    validator.isValid(_config)
+
+  @get_validation_errors = ->
+    validator.validation_errors
 
   @loadIntoEnvironment = ->
-    config = @get()
-    process.env['HUBOT_SLACK_BOTNAME'] = config.bot_name
-    process.env['HUBOT_SLACK_TEAM'] = config.slack_team
-    process.env['HUBOT_SLACK_TOKEN'] = config.slack_token
-    process.env['HUBOT_GITHUB_TOKEN'] = config.github_token
-    process.env['HUBOT_DEPLOY_TIMEOUT'] = config.deploy_timeout
+    @get (config) ->
+      process.env['HUBOT_SLACK_BOTNAME'] = config.bot_name
+      process.env['HUBOT_SLACK_TEAM'] = config.slack_team
+      process.env['HUBOT_SLACK_TOKEN'] = config.slack_token
+      process.env['HUBOT_GITHUB_TOKEN'] = config.github_token
+      process.env['HUBOT_DEPLOY_TIMEOUT'] = config.deploy_timeout
 
   class ConfigInstance
     constructor: ->
