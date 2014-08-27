@@ -4,7 +4,7 @@ EventEmitter = require 'events'
 ID_VALUE = 'hubot-deploy-apps-id'
 APPS = 'hubot-deploy-apps'
 
-class AppsCache
+class Apps
   _instance = null
 
   class Cache extends EventEmitter
@@ -80,4 +80,4 @@ class AppsCache
   @instance: ->
     _instance ?= new Cache
 
-module.exports = AppsCache
+module.exports = Apps

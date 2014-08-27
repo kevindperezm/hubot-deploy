@@ -6,7 +6,7 @@ Version = require(Path.join(__dirname, "version")).Version
 api = require("octonode").client(process.env.HUBOT_GITHUB_TOKEN or 'unknown')
 api.requestDefaults.headers['Accept'] = 'application/vnd.github.cannonball-preview+json'
 ###########################################################################
-AppsCache = require './apps_cache'
+Apps = require './apps/apps'
 
 class Deployment
   @USE_WEB_ENDPOINT = process.env['HUBOT_DEPLOY_REST_APPS']
@@ -22,7 +22,7 @@ class Deployment
 
   loadApp: (cb) ->
     if @constructor.USE_WEB_ENDPOINT
-      AppsCache.instance().loadApps (apps) =>
+      Apps.instance().loadApps (apps) =>
         @configureApp(apps, cb)
     else
       Fs.readFile @constructor.APPS_FILE, (err, data) =>
