@@ -17,11 +17,12 @@ module.exports = (robot) ->
   robot.router.post '/deploy/config', (req, res) ->
     # Saves bot config
     config = req.body
-    if Config.validate(config)
-      Config.save(config)
+    Config.set(config)
+    if Config.isValid()
+      Config.save()
       res.status(204).end()
     else
-      errors = JSON.stringify Config.validation_errors()
+      errors = JSON.stringify Config.get_validation_errors()
       res.set 'Content-Type', 'application/json'
       res.set 'Content-Length', errors.length
       res.status(422).send errors
