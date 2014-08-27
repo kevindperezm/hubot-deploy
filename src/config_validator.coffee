@@ -1,4 +1,4 @@
-strUtils = require './str_utils'
+strUtils = require './utils/str'
 
 class ConfigValidator
   @isValid = (config) ->
