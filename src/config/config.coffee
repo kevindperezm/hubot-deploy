@@ -14,6 +14,9 @@ class Config
     deploy_timeout: 15
   }
 
+  constructor: ->
+    @robot = null
+
   @get = (cb) ->
     if _config
       cb(_config)
@@ -43,13 +46,22 @@ class Config
     validator.validation_errors
 
   @loadIntoEnvironment = ->
-    @get (config) ->
-      process.env['HUBOT_SLACK_BOTNAME'] = config.bot_name
-      process.env['HUBOT_SLACK_TEAM'] = config.slack_team
-      process.env['HUBOT_SLACK_TOKEN'] = config.slack_token
-      process.env['HUBOT_GITHUB_TOKEN'] = config.github_token
-      process.env['HUBOT_DEPLOY_TIMEOUT'] = config.deploy_timeout
+    @get (config) =>
+      @setEnvironmentVars(config)
+      @updateSlackAdapterConfig()
       console.log 'Updated deployment environment variables'
+
+  @setEnvironmentVars = (config) ->
+    process.env['HUBOT_SLACK_BOTNAME'] = config.bot_name
+    process.env['HUBOT_SLACK_TEAM'] = config.slack_team
+    process.env['HUBOT_SLACK_TOKEN'] = config.slack_token
+    process.env['HUBOT_GITHUB_TOKEN'] = config.github_token
+    process.env['HUBOT_DEPLOY_TIMEOUT'] = config.deploy_timeout
+
+  @updateSlackAdapterConfig = ->
+    if @robot? and @robot.adapter.parseOptions?
+      @robot.adapter.parseOptions()
+      console.log 'Updated Slack adapter options'
 
   class ConfigInstance
     constructor: ->
