@@ -3,6 +3,7 @@ Config = require './config'
 module.exports = (robot) ->
   return unless process.env['HUBOT_DEPLOY_REST_APPS']
 
+  Config.robot = robot
   Config.loadIntoEnvironment()
 
   robot.router.get '/deploy/config', (req, res) ->
