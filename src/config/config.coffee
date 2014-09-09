@@ -49,6 +49,7 @@ class Config
       process.env['HUBOT_SLACK_TOKEN'] = config.slack_token
       process.env['HUBOT_GITHUB_TOKEN'] = config.github_token
       process.env['HUBOT_DEPLOY_TIMEOUT'] = config.deploy_timeout
+      console.log 'Updated deployment environment variables'
 
   class ConfigInstance
     constructor: ->
@@ -57,12 +58,13 @@ class Config
     get: (cb) ->
       @db.get CONFIG_KEY, (err, data) ->
         if err
-          console.log "Can't get hubot-deploy config."
+          console.log "Can't get deployment config."
         else
           cb JSON.parse(data)
 
     save: (config) ->
       config = JSON.stringify(config)
+      console.log 'Updated deployment config'
       @db.set CONFIG_KEY, config
 
     connectDB: ->
